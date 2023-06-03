@@ -19,7 +19,7 @@ const userStore = new UserStore();
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/views/index.html');
 });
-
+app.use("/favicon.ico", express.static("./views/favicon.ico"));
 
 let ramdom_words = []
 async function generateUsername() {

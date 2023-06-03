@@ -52,6 +52,9 @@
         .chat-area {
             flex-grow: 1;
             padding: 20px;
+            height: 400px;
+            /* Adjust the height as needed */
+            overflow-y: scroll;
         }
 
         .users-list h3 {
@@ -323,6 +326,7 @@
 
                 // append a message box to the content area
                 content.appendChild(msgBox);
+                content.scrollTop = content.scrollHeight;
             });
 
             socket.on("disconnect", function () {
