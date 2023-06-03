@@ -9,6 +9,9 @@
   <a href="https://github.com/neverleave0916/SocketChatroom/LICENSE">
     <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="License">
   </a>
+  <a href="https://actions-badge.atrox.dev//neverleave0916/SocketChatroom/goto?ref=main">
+    <img alt="Build Status" src="https://img.shields.io/endpoint.svg?url=https%3A%2F%2Factions-badge.atrox.dev%2F%2Fneverleave0916%2FSocketChatroom%2Fbadge%3Fref%3Dmain&style=flat" />
+  </a>
 </p>
 
 ## :rocket: Features
