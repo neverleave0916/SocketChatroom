@@ -1,0 +1,36 @@
+name: Deploy to Local Server
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**/README.md'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install SSH Client
+        run: sudo apt-get install openssh-client
+        
+      - name: Deploy to Local Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          port: ${{ secrets.SERVER_PORT }}
+          username: ${{ secrets.SERVER_USERNAME }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            if [ -d " ~/workspace/SocketChatroom" ]; then
+              cd  ~/workspace/SocketChatroom
+              docker compose down
+            fi
+            cd ~
+            rm -rf  ~/workspace/SocketChatroom
+            git clone https://github.com/neverleave0916/SocketChatroom.git ~/workspace/SocketChatroom
+            cd ~/workspace/SocketChatroom/
+            docker compose up -d --build
