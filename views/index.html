@@ -217,9 +217,6 @@
         }
     </style>
     <script src="/socket.io/socket.io.js"></script>
-    <script>
-        var socket = io();
-    </script>
 </head>
 
 <body>
@@ -267,7 +264,8 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-
+            var socket = io();
+            
             var status = document.getElementById("status");
             var online = document.getElementById("online");
             var randusername = document.getElementById("name");
