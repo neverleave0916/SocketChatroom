@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Chat Room</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+        }
+
+        .container {
+            margin-top: 30px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #ffffff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .chat-room {
+            background-color: #ffffff;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .users-list {
+            flex-basis: 200px;
+            border-right: 1px solid #e9e9e9;
+            padding: 20px;
+            height: 400px;
+            /* Adjust the height as needed */
+            overflow-y: scroll;
+            /* Add scrollable behavior */
+        }
+
+        .chat-area {
+            flex-grow: 1;
+            padding: 20px;
+        }
+
+        .users-list h3 {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+
+        .user {
+            margin-bottom: 10px;
+        }
+
+        .user:last-child {
+            margin-bottom: 0;
+        }
+
+        .user .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 5px;
+        }
+
+        .user .online {
+            background-color: #2ecc71;
+        }
+
+        .user .offline {
+            background-color: #e74c3c;
+        }
+
+        .message {
+            margin-bottom: 10px;
+        }
+
+        .message:last-child {
+            margin-bottom: 0;
+        }
+
+        .message .sender {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .message .timestamp {
+            font-size: 12px;
+            color: #999999;
+        }
+
+        .message .content {
+            font-size: 14px;
+        }
+
+        .input-box #send-form {
+            display: flex;
+            margin-top: 20px;
+        }
+
+        /* .input-box #send-form input[type="text"] {
+      flex-grow: 1;
+      padding: 10px;
+      border: 1px solid #e9e9e9;
+      border-radius: 3px;
+    } */
+        #name {
+            /* flex-grow: 1; */
+            width: 120px;
+            /* Set the desired width */
+            padding: 10px;
+            border: 1px solid #e9e9e9;
+            border-radius: 3px;
+        }
+
+        #msg {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #e9e9e9;
+            border-radius: 3px;
+        }
+
+
+        /* .input-box #send-form #submit {
+      padding: 10px 20px;
+      margin-left: 10px;
+      background-color: #2ecc71;
+      color: #ffffff;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    } */
+        #submit {
+            padding: 10px 20px;
+            margin-left: 10px;
+            background-color: #2ecc71;
+            color: #ffffff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 767px) {
+            .input-box #send-form {
+                flex-wrap: wrap;
+            }
+
+            #name {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            #submit {
+                width: 20%;
+            }
+        }
+
+        .footer {
+            padding: 20px;
+            background-color: #f7f7f7;
+            text-align: center;
+        }
+
+        .footer p {
+            margin: 0;
+        }
+
+        /* Loading animation */
+        @keyframes loading {
+            0% {
+                opacity: 0.3;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.3;
+            }
+        }
+
+        .loading {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ffffff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 9999;
+        }
+
+        .loading::after {
+            content: "";
+            display: block;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            border: 4px solid #2ecc71;
+            border-color: #2ecc71 transparent #2ecc71 transparent;
+            animation: loading 0.3s linear infinite;
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        var socket = io();
+    </script>
+</head>
+
+<body>
+    <div class="loading"></div>
+    <div class="container">
+        <header class="header">
+            <div class="logo">Online Chat Room</div>
+            <div id="status-box">Server: <span id="status">-</span> / <span id="online">0</span> online.</div>
+            <!-- Add any additional header content here -->
+        </header>
+        <div class="chat-room">
+            <div class="users-list" id="users-list">
+                <h3>Online Users</h3>
+                <!-- Updated user list with 10 users -->
+                <!-- <div class="user">
+          <span class="status-indicator online"></span>
+          User 1
+        </div> -->
+            </div>
+            <div class="chat-area" id="content">
+                <!-- <div class="message">
+          <span class="sender">User 1:</span>
+          <span class="timestamp">12:30 PM</span>
+          <div class="content">Hello, everyone!</div>
+        </div> -->
+                <!-- Add more example messages here -->
+            </div>
+        </div>
+
+        <div class="input-box">
+            <form id="send-form">
+                <input type="text" name="name" id="name" placeholder="暱稱" readonly disabled>
+                <input type="text" name="msg" id="msg" placeholder="Type your message...">
+                <input type="submit" id="submit" value="Send"></input>
+            </form>
+        </div>
+
+    </div>
+
+    <div class="footer">
+        <p>&copy; 2023 Online Chat Room. All rights reserved.</p>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+            var status = document.getElementById("status");
+            var online = document.getElementById("online");
+            var randusername = document.getElementById("name");
+            var sendForm = document.getElementById("send-form"); // 加入這行
+            var content = document.getElementById("content");    // 加入這行
+            var usersList = document.getElementById("users-list"); // 加入這行 
+            var msg = document.getElementById("msg");
+
+            // 加入這段
+            sendForm.addEventListener("submit", function (e) {
+                e.preventDefault();
+
+                var formData = {};
+                var formChild = sendForm.children;
+
+                for (var i = 0; i < sendForm.childElementCount; i++) {
+                    var child = formChild[i];
+                    if (child.name !== "") {
+                        formData[child.name] = child.value;
+                    }
+                }
+                socket.emit("send", formData);
+                msg.value = "";
+
+            });
+
+            socket.on("connect", function () {
+                status.innerText = "Connected.";
+            });
+
+            // 加入這一段
+            socket.on("msg", function (d) {
+                var msgBox = document.createElement("div")
+                msgBox.className = "message";
+                var nameBox = document.createElement("span");
+                nameBox.className = "sender";
+                var timestampBox = document.createElement("span");
+                timestampBox.className = "timestamp";
+                var contentBox = document.createElement("div");
+                contentBox.className = "content";
+
+                var time = new Date();
+
+                var name = document.createTextNode(d.name);
+                var timestamp = document.createTextNode(time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })); // 這裡先寫死
+                var msg = document.createTextNode(d.msg);
+
+                nameBox.appendChild(name);
+                timestampBox.appendChild(timestamp);
+                contentBox.appendChild(msg);
+
+                msgBox.appendChild(nameBox);
+                msgBox.appendChild(timestampBox);
+                msgBox.appendChild(contentBox);
+
+                // append a message box to the content area
+                content.appendChild(msgBox);
+            });
+
+            socket.on("disconnect", function () {
+                status.innerText = "Disconnected.";
+                online.innerText = "-";
+
+            });
+
+            socket.on("online", function (amount) {
+                online.innerText = amount;
+            });
+
+
+
+
+
+            socket.on("randomUsername", function (randomUsername) {
+                randusername.value = randomUsername;
+            });
+
+            // get userlist from server and print to console
+            socket.on("getAllUsers", function (users) {
+                while (usersList.childNodes.length > 1) {
+                    usersList.removeChild(usersList.lastChild);
+                }
+                // use for loop to iter userlist
+                for (let user in users) {
+                    var userBox = document.createElement("div")
+                    userBox.className = "user";
+                    var userNameBox = document.createElement("span")
+                    if (users[user]['status'] === 'Connected') {
+                        userNameBox.className = "status-indicator online";
+                    } else {
+                        userNameBox.className = "status-indicator offline";
+                    }
+
+                    var userNameInList = document.createTextNode(users[user]['username']);
+
+                    userBox.appendChild(userNameBox);
+                    userBox.appendChild(userNameInList);
+                    // if (userlist[name] === true) {
+                        usersList.appendChild(userBox);
+                    // }
+                }
+            });
+        });
+    </script>
+
+    <script>
+        // Remove loading animation after the page is loaded
+        window.addEventListener("load", function () {
+            var loading = document.querySelector(".loading");
+            loading.style.display = "none";
+        });
+    </script>
+</body>
+
+</html>
