@@ -19,10 +19,14 @@
 - :globe_with_meridians: Single Chatroom: All users participate in a single chatroom for real-time conversations.
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Socket.io-black?style=for-the-badge&logo=socket.io&badgeColor=010101" alt="Socket.io">
   <img src="https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white" alt="NodeJS">
   <img src="https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB" alt="Express.js">
+  <img src="https://img.shields.io/badge/Socket.io-black?style=for-the-badge&logo=socket.io&badgeColor=010101" alt="Socket.io">
 </p>
+
+## :globe_with_meridians: Demo
+
+Check out the live demo of the chatroom application [here](https://chat.neverleave0916.com/).
 
 ## :computer: Installation
 
