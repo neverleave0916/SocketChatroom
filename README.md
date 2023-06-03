@@ -19,8 +19,8 @@
 - :globe_with_meridians: Single Chatroom: All users participate in a single chatroom for real-time conversations.
 
 <p align="center">
-  <img src="https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white" alt="NodeJS">
   <img src="https://img.shields.io/badge/Socket.io-black?style=for-the-badge&logo=socket.io&badgeColor=010101" alt="Socket.io">
+  <img src="https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white" alt="NodeJS">
   <img src="https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB" alt="Express.js">
 </p>
 
@@ -29,6 +29,13 @@
 1. Clone the repository.
 2. Install the dependencies using `npm install`.
 3. Start the server with `npm start`.
+
+## :camera: Screenshots
+
+<!-- Replace the image below with your own screenshot(s) -->
+<p align="center">
+  <img src="https://github.com/neverleave0916/SocketChatroom/assets/52253495/f619d693-9736-449b-8963-3721a902a863" alt="Screenshot">
+</p>
 
 ## :clipboard: Usage
 
