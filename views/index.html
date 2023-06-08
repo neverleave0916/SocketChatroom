@@ -319,6 +319,16 @@
 
             });
             imageInput.addEventListener('change', function (e) {
+                var formData = {};
+                var formChild = sendForm.children;
+
+                for (var i = 0; i < sendForm.childElementCount; i++) {
+                    var child = formChild[i];
+                    if (child.name !== "") {
+                        formData[child.name] = child.value;
+                    }
+                }
+
                 if (e.target.files[0]) {
                     // document.body.append('You selected ' + e.target.files[0].name);
                     const file = imageInput.files[0];
@@ -328,34 +338,46 @@
                     reader.onload = function (event) {
                         console.log('reader.onload');
                         const imageData = event.target.result;
-                        var formData = {};
-                        var formChild = sendForm.children;
+                        // Create an HTML image element
+                        const image = new Image();
+                        // Set the image source to the loaded data
+                        image.src = imageData;
 
-                        for (var i = 0; i < sendForm.childElementCount; i++) {
-                            var child = formChild[i];
-                            if (child.name !== "") {
-                                formData[child.name] = child.value;
-                            }
-                        }
                         
-                        formData['image'] = imageData;
-                        msg.value = "";
-                        // console.log(imageData);
-                        // Send the image data to the server
-                        socket.emit('upload', formData);
+                        
+                        // When the image is fully loaded, perform compression
+                        image.onload = function() {
+                            const canvas = document.createElement('canvas');
+                            const ctx = canvas.getContext('2d');
+
+                            // Set the canvas dimensions to the image dimensions
+                            canvas.width = image.width;
+                            canvas.height = image.height;
+
+                            // Draw the image onto the canvas
+                            ctx.drawImage(image, 0, 0);
+
+                            // Get the compressed image data as a base64 string
+                            const compressedImageData = canvas.toDataURL('image/jpeg', 0.3);
+
+                            // Send the compressed image data to the server
+                            formData['image'] = compressedImageData;
+                            msg.value = "";
+                            // Send the image data to the server
+                            socket.emit('upload', formData);
+                        };
+                        
+
+                        // formData['image'] = imageData;
+                        // msg.value = "";
+                        // // console.log(imageData);
+                        // // Send the image data to the server
+                        // socket.emit('upload', formData);
                     };
 
                     reader.readAsDataURL(file);
                 }
             });
-            // socket.on('connect_failed', function(e) {
-            //     console.log(e)
-            //     document.write("Sorry, there seems to be an issue with the connection!");
-            // })
-            // socket.on('error', function(e) {
-            //     console.log(e)
-            //     document.write("Sorry, there seems to be an issue with the connection!");
-            // })
 
 
             socket.on("connect", function () {
