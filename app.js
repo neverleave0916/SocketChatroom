@@ -13,7 +13,7 @@ const sessionMiddleware = session({
 const server = require('http').Server(app);
 const io = require('socket.io')(server, {
     maxHttpBufferSize: 1e8
-  });
+});
 io.engine.use(sessionMiddleware);
 const userStore = new UserStore();
 
@@ -26,27 +26,27 @@ app.use("/favicon.ico", express.static("./views/favicon.ico"));
 let ramdom_words = []
 async function generateUsername() {
     try {
-      if (ramdom_words.length === 0) {
-        const maxLength = 6; // Maximum length of each word
-        const response = await fetch(`https://random-word-api.herokuapp.com/word?number=20&length=${maxLength}`);
-        if (!response.ok) {
-          throw new Error('Failed to fetch random words');
+        if (ramdom_words.length === 0) {
+            const maxLength = 6; // Maximum length of each word
+            const response = await fetch(`https://random-word-api.herokuapp.com/word?number=20&length=${maxLength}`);
+            if (!response.ok) {
+                throw new Error('Failed to fetch random words');
+            }
+            const data = await response.json();
+            ramdom_words = data;
         }
-        const data = await response.json();
-        ramdom_words = data;
-      }
-  
-      const randomIndex = Math.floor(Math.random() * ramdom_words.length);
-      let randomWord = ramdom_words[randomIndex];
-      randomWord = randomWord.charAt(0).toUpperCase() + randomWord.slice(1);
-      ramdom_words.splice(randomIndex, 1);
-  
-      return randomWord;
+
+        const randomIndex = Math.floor(Math.random() * ramdom_words.length);
+        let randomWord = ramdom_words[randomIndex];
+        randomWord = randomWord.charAt(0).toUpperCase() + randomWord.slice(1);
+        ramdom_words.splice(randomIndex, 1);
+
+        return randomWord;
     } catch (error) {
-      console.error(error);
-      return 'username_error';
+        console.error(error);
+        return 'username_error';
     }
-  }
+}
 
 
 io.on('connection', async (socket) => {
@@ -63,7 +63,7 @@ io.on('connection', async (socket) => {
         });
     });
 
-    
+
     if (req.session.randomUsername) {
         // console.log("user already has a username")
         socket.emit('randomUsername', req.session.randomUsername);
@@ -93,9 +93,6 @@ io.on('connection', async (socket) => {
     });
     // Handle image upload
     socket.on('upload', (data) => {
-        console.log('upload');
-        // console.log(data);
-        // Broadcast the image to all connected clients
         io.emit('image', data);
     });
 
