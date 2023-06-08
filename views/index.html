@@ -155,6 +155,12 @@
             cursor: pointer;
         }
 
+        #upload {
+            padding: 10px 20px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
         @media (max-width: 767px) {
             .input-box #send-form {
                 flex-wrap: wrap;
@@ -241,10 +247,19 @@
             </div>
             <div class="chat-area" id="content">
                 <!-- <div class="message">
-          <span class="sender">User 1:</span>
-          <span class="timestamp">12:30 PM</span>
-          <div class="content">Hello, everyone!</div>
-        </div> -->
+                    <span class="sender">User 1:</span>
+                    <span class="timestamp">12:30 PM</span>
+                    <div class="content">Hello, everyone!</div>
+                </div>
+                <div class="message">
+                    <span class="sender">User 1:</span>
+                    <span class="timestamp">12:30 PM</span>
+                    <div class="content"><img 
+                        src="https://thumbs.dreamstime.com/z/basic-rgb-222084884.jpg" 
+                        width=45% 
+                        heigh="auto" alt="一張圖片">
+                    </div>
+                </div> -->
                 <!-- Add more example messages here -->
             </div>
         </div>
@@ -253,6 +268,13 @@
             <form id="send-form">
                 <input type="text" name="name" id="name" placeholder="暱稱" readonly disabled>
                 <input type="text" name="msg" id="msg" placeholder="Type your message...">
+                <!-- <input type="file" id="imageInput"> -->
+                <input type="file" id="imageInput" style="display: none;" />
+                <!-- <button type="button" class="btn btn-secondary" id="uploadButton">Upload</button> -->
+                <button type="button" id="upload" class="btn btn-secondary" id="uploadButton"
+                    onclick="document.getElementById('imageInput').click();">Upload</button>
+                <!-- <div id="imageContainer"></div> -->
+
                 <input type="submit" id="submit" value="Send"></input>
             </form>
         </div>
@@ -268,10 +290,12 @@
     <script>
         document.addEventListener("DOMContentLoaded", () => {
             var socket = io();
-            
+
             var status = document.getElementById("status");
             var online = document.getElementById("online");
             var randusername = document.getElementById("name");
+            var imageInput = document.getElementById('imageInput');
+            var uploadButton = document.getElementById('uploadButton');
             var sendForm = document.getElementById("send-form"); // 加入這行
             var content = document.getElementById("content");    // 加入這行
             var usersList = document.getElementById("users-list"); // 加入這行 
@@ -294,6 +318,45 @@
                 msg.value = "";
 
             });
+            imageInput.addEventListener('change', function (e) {
+                if (e.target.files[0]) {
+                    // document.body.append('You selected ' + e.target.files[0].name);
+                    const file = imageInput.files[0];
+                    // Create a FileReader to read the image file
+                    const reader = new FileReader();
+
+                    reader.onload = function (event) {
+                        console.log('reader.onload');
+                        const imageData = event.target.result;
+                        var formData = {};
+                        var formChild = sendForm.children;
+
+                        for (var i = 0; i < sendForm.childElementCount; i++) {
+                            var child = formChild[i];
+                            if (child.name !== "") {
+                                formData[child.name] = child.value;
+                            }
+                        }
+                        
+                        formData['image'] = imageData;
+                        msg.value = "";
+                        // console.log(imageData);
+                        // Send the image data to the server
+                        socket.emit('upload', formData);
+                    };
+
+                    reader.readAsDataURL(file);
+                }
+            });
+            // socket.on('connect_failed', function(e) {
+            //     console.log(e)
+            //     document.write("Sorry, there seems to be an issue with the connection!");
+            // })
+            // socket.on('error', function(e) {
+            //     console.log(e)
+            //     document.write("Sorry, there seems to be an issue with the connection!");
+            // })
+
 
             socket.on("connect", function () {
                 status.innerText = "Connected.";
@@ -327,6 +390,49 @@
                 // append a message box to the content area
                 content.appendChild(msgBox);
                 content.scrollTop = content.scrollHeight;
+            });
+            // Handle receiving the image from the server
+            socket.on('image', (d) => {
+                // const imageContainer = document.getElementById('imageContainer');
+                var image = document.createElement('img');
+                image.src = d.image;
+                image.style.width = "30%";
+                image.style.height = "auto";
+                image.alt = "一張圖片";
+
+                var msgBox = document.createElement("div")
+                msgBox.className = "message";
+                var nameBox = document.createElement("span");
+                nameBox.className = "sender";
+                var timestampBox = document.createElement("span");
+                timestampBox.className = "timestamp";
+                var contentBox = document.createElement("div");
+                contentBox.className = "content";
+
+                var time = new Date();
+
+                var name = document.createTextNode(d.name);
+                var timestamp = document.createTextNode(time.toLocaleString('en-US', { hour: 'numeric', minute: 'numeric', hour12: true })); // 這裡先寫死
+                var msg = document.createTextNode(d.msg);
+                var brElement = document.createElement('br');
+
+                nameBox.appendChild(name);
+                timestampBox.appendChild(timestamp);
+                if(d.msg !== "") {
+                    contentBox.appendChild(msg);
+                    contentBox.appendChild(brElement);
+                }
+                contentBox.appendChild(image);
+
+                msgBox.appendChild(nameBox);
+                msgBox.appendChild(timestampBox);
+                msgBox.appendChild(contentBox);
+
+                // append a message box to the content area
+                content.appendChild(msgBox);
+                content.scrollTop = content.scrollHeight;
+                //When you have to reload the file, you can erase the value of input. Next time you add a file, 'on change' event will trigger.
+                imageInput.value = '';
             });
 
             socket.on("disconnect", function () {
@@ -368,7 +474,7 @@
                     userBox.appendChild(userNameBox);
                     userBox.appendChild(userNameInList);
                     // if (userlist[name] === true) {
-                        usersList.appendChild(userBox);
+                    usersList.appendChild(userBox);
                     // }
                 }
             });

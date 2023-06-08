@@ -11,7 +11,9 @@ const sessionMiddleware = session({
 
 
 const server = require('http').Server(app);
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {
+    maxHttpBufferSize: 1e8
+  });
 io.engine.use(sessionMiddleware);
 const userStore = new UserStore();
 
@@ -88,6 +90,13 @@ io.on('connection', async (socket) => {
     socket.on("send", (msg) => {
         // 廣播訊息到聊天室
         io.emit("msg", msg);
+    });
+    // Handle image upload
+    socket.on('upload', (data) => {
+        console.log('upload');
+        // console.log(data);
+        // Broadcast the image to all connected clients
+        io.emit('image', data);
     });
 
     socket.on('disconnect', () => {
